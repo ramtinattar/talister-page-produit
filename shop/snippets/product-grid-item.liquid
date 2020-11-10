@@ -1,0 +1,5 @@
+	<a href="{{ product.url | within: collection }}">
+		<div class="image-container product-grid__image-container reset-font related-products {% if hover == true %}{% unless product.images[1] == blank %}product-grid__image-container--hover{% endunless %}{% endif %}">
+			<img src="{{ product.images[0] | img_url: '1000x' }}"  alt="{{ image.src.alt }}" />
+		</div>
+	</a>

@@ -1,0 +1,163 @@
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+{%- assign featured_image = current_variant.featured_image | default: product.featured_image -%}
+
+<section id="ProductSection-{{ section.id }}" class="section" data-section-id="{{ section.id }}" data-section-type="product" >
+
+  <div class="product-section">
+
+    <div class="product-section__image-container">
+      {% for image in product.images %}
+        <img class="product-section__image-container__product-image" src="{{ image.src | img_url: '1000x' }}"  alt="{{ image.src.alt }}" />
+      {% endfor %}
+      {% if section.settings.scroll_image != blank and product.images.size > 1 %}
+        <img class="product-section__image-container__scroll-image" src="{{ section.settings.scroll_image | img_url: '300x' }}" alt="{{ section.settings.scroll_image.alt }}" />
+      {% endif %}
+    </div>
+    {% if section.settings.swipe_image != blank and product.images.size > 1 %}
+      <img class="product-section__image-container__swipe-image" src="{{ section.settings.swipe_image | img_url: '300x' }}" alt="{{ section.settings.swipe_image.alt }}" />
+    {% endif %}
+
+    <div class="product-section__information-container">
+      {% if product.title != blank %}
+        <h1 class="product-section__information-container__title">{{ product.title }}</h1>
+      {% endif %}
+      {% if product.price != blank %}
+        <h2 class="product-section__information-container__price">{{ product.price | money }}</h2>
+      {% endif %}
+
+      <form id="options" action="/cart/add" method="post" enctype="multipart/form-data">
+
+        <!-- hidden variants -->
+
+        <select name="id" class="product-section__information-container__hidden-variant" data-product-select data-product-select-global>
+          {% for variant in product.variants %}
+            <option {% if variant == current_variant %} selected="selected" {% endif %} {% unless variant.available %} disabled="disabled" {% endunless %} data-variant-id="{{ variant.id }}" value="{{ variant.id }}">
+              {{ variant.title }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <!-- hidden options -->
+
+        {% if product.options_by_name['type'] != blank %}
+          <label class="product-section__information-container__hidden-option">
+            TYPE
+            <select>
+              {% for type_option in product.options_by_name['type'].values %}
+                <option>{{ type_option }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        {% endif %}
+        {% if product.options_by_name['couleur'] != blank %}
+          <label class="product-section__information-container__hidden-option">
+            COULEUR
+            <select>
+              {% for color_option in product.options_by_name['couleur'].values %}
+                <option>{{ color_option }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        {% endif %}
+        {% if product.options_by_name['taille'] != blank %}
+          <label class="product-section__information-container__hidden-option">
+            TAILLE
+            <select>
+              {% for taille_option in product.options_by_name['taille'].values %}
+                <option>{{ taille_option }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        {% endif %}
+
+        <!-- radio options -->
+        <div class="product-section__information-container__options-container">
+          {% if product.options_by_name['type'] != blank  %}
+            <p class="product-section__information-container__option-title">TYPE</p>
+            {% for type_option in product.options_by_name['type'].values %}
+              <input type="radio" name="options1" value="{{ type_option }}" id="{{ type_option }}" required="required"/>
+              <label for="{{ type_option }}"> {{ type_option }} </label>
+            {% endfor %}
+          {% endif %}
+
+          {% if product.options_by_name['couleur'] != blank  %}
+            <p class="product-section__information-container__option-title">COULEUR</p>
+            {% for color_option in product.options_by_name['couleur'].values %}
+              <input type="radio" name="options2"  value="{{ color_option }}" id="{{ color_option }}" required="required"/>
+              <label for="{{ color_option }}"> {{ color_option }} </label>
+            {% endfor %}
+          {% endif %}
+
+          {% if product.options_by_name['taille'] != blank  %}
+            <p class="product-section__information-container__option-title">TAILLE</p>
+            {% for size_option in product.options_by_name['taille'].values %}
+              <input type="radio" name="options3" value="{{ size_option }}" id="{{ size_option }}" required="required"/>
+              <label for="{{ size_option }}"> {{ size_option }} </label>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <!-- cta button -->
+        <button class="product-section__information-container__cta" type="submit" name="add"  id="btn">
+          <h2>{{ section.settings.cta_button_text }}</h2>
+          {% if section.settings.cta_button_arrow != blank %}
+            <img src="{{ section.settings.cta_button_arrow | img_url: '200x' }}" alt="{{ section.settings.cta_button_arrow.alt }}"/>
+          {% endif %}
+        </button>
+
+      </form>
+      {% if product.description != blank %}
+        <div class="product-section__information-container__description">
+          {{ product.description }}
+        </div>
+      {% endif %}
+      <div class="product-section__information-container__black-line"></div>
+      {% if section.settings.related_products == true %}
+        {% include 'related-products' %}
+      {% endif %}
+    </div>
+
+  </div>
+
+</section>
+
+{% schema %}
+{
+  "name": "Product",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "scroll_image",
+      "label": "scroll image (only desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "swipe_image",
+      "label": "swipe image (only mobile)"
+    },
+    {
+      "type": "text",
+      "id": "cta_button_text",
+      "label": "cta button text",
+      "default": "AJOUTER AU PANIER"
+    },
+    {
+      "type": "image_picker",
+      "id": "cta_button_arrow",
+      "label": "cta button arrow"
+    },
+    {
+      "type": "checkbox",
+      "id": "related_products",
+      "label": "show related products",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "related_products_title",
+      "label": "related products title",
+      "default": "related products"
+    }
+  ]
+}
+{% endschema %}
